@@ -8,6 +8,10 @@
     "build": "webpack --config example/browser/webpack.config.js",
     "deploy": "npm run build && gh-pages -d example/browser"
   },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/Quramy/decode-tiff.git"
+  },
   "keywords": [
     "image",
     "codec",
