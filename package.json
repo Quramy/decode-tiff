@@ -1,0 +1,27 @@
+{
+  "name": "decode-tiff",
+  "version": "1.0.0",
+  "description": "Lightweight tiff decoder",
+  "main": "index.js",
+  "scripts": {
+    "test": "ava",
+    "build": "webpack -c example/browser/webpack.config.js"
+  },
+  "keywords": [
+    "image",
+    "codec",
+    "tiff"
+  ],
+  "author": "Quramy",
+  "license": "MIT",
+  "devDependencies": {
+    "ava": "^0.21.0",
+    "glob": "^7.1.2",
+    "pngjs": "^3.2.0",
+    "rimraf": "^2.6.1",
+    "webpack": "^3.0.0"
+  },
+  "ava": {
+    "files": "test/**/*.test.js"
+  }
+}
