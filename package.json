@@ -1,11 +1,12 @@
 {
   "name": "decode-tiff",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Lightweight tiff decoder",
   "main": "index.js",
   "scripts": {
     "test": "ava",
-    "build": "webpack -c example/browser/webpack.config.js"
+    "build": "webpack --config example/browser/webpack.config.js",
+    "deploy": "npm run build && gh-pages -d example/browser"
   },
   "keywords": [
     "image",
@@ -16,6 +17,7 @@
   "license": "MIT",
   "devDependencies": {
     "ava": "^0.21.0",
+    "gh-pages": "^1.0.0",
     "glob": "^7.1.2",
     "pngjs": "^3.2.0",
     "rimraf": "^2.6.1",

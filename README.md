@@ -1,4 +1,7 @@
 # decode-tiff
+[![npm version](https://badge.fury.io/js/decode-tiff.svg)](https://badge.fury.io/js/decode-tiff)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
 :zap: A lightweight pure JavaScript TIFF decoder. :art:
 
 ## How to use it
@@ -25,7 +28,7 @@ fs.writeFileSync(__dirname + "/lena.png", PNG.sync.write(png));
 
 ### Browser
 
-This example show metadata of the dropped file.
+This example show metadata of the dropped file. [Working demonstration is here.](https://quramy.github.io/decode-tiff/)
 
 ```js
 const { decode } = require("decode-tiff");
