@@ -70,4 +70,5 @@ package-lock.json
 
 # End of https://www.gitignore.io/api/node
 
-example/browser/bundle.js
+example/browser/*.min.js
+lib/

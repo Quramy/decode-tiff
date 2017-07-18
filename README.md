@@ -5,7 +5,7 @@
 :zap: A lightweight pure JavaScript TIFF decoder. :art:
 
 ## How to use it
-### Node.js
+### With Node.js
 
 ```sh
 npm i tiff-decode
@@ -26,31 +26,42 @@ png.data = data;
 fs.writeFileSync(__dirname + "/lena.png", PNG.sync.write(png));
 ```
 
-### Browser
+### With Browser
 
-This example show metadata of the dropped file. [Working demonstration is here.](https://quramy.github.io/decode-tiff/)
+Download script file from [dist/decode-tiff.min.js](https://raw.githubusercontent.com/Quramy/decode-tiff/master/dist/decode-tiff.min.js). Alternatively you can use Module Bundler, such as webpack, Browserify, and Rollup.
 
-```js
-const { decode } = require("decode-tiff");
+This example shows metadata of the dropped file. [Working demonstration is here.](https://quramy.github.io/decode-tiff/)
 
+```html
+<html>
+<head></head>
+<body>
+
+  <div id="drop">
+    <p>Drop TIFF file here!</p>
+  </div>
+
+<script src="decode-tiff.min.js"></script>
+<script>
+const { decode } = window.decodeTiff;
 const elm = document.getElementById("drop");
-
 elm.addEventListener("dragenter", e => e.preventDefault());
 elm.addEventListener("dragover", e => e.preventDefault());
-elm.addEventListener("drop", (e) => {
+elm.addEventListener("drop", e => {
   e.preventDefault();
   const file = e.dataTransfer.files[0];
   const reader = new FileReader();
-  reader.addEventListener("load", (e) => {
+  reader.addEventListener("load", e => {
     const arrayBuffer = e.target.result;
     const { width, height, ifdEntries } = decode(arrayBuffer);
-    const IFDs = JSON.stringify({ width, height, ifdEntries }, null, 2);
-    elm.innerHTML = `
-      <pre>${IFDs}</pre>
-    `;
+    const metadata = JSON.stringify({ width, height, ifdEntries }, null, 2);
+    elm.innerHTML = `<pre>${metadata}</pre>`;
   });
   reader.readAsArrayBuffer(file);
 });
+</script>
+</body>
+</html>
 ```
 
 ## API
@@ -75,13 +86,18 @@ elm.addEventListener("drop", (e) => {
   - [x] 32bit Full Colors
   - [x] 24bit Full Colors
   - [x] 8bit Gray scale
-  - [ ] Color Pallet
+  - [x] 4bit Gray scale
+  - [ ] Palette-Color
   - [ ] Bilevel(white)
   - [ ] Bilevel(black)
 - Compression
   - [x] No Compression
+  - [ ] CCITT Group 3
   - [ ] LZW Compression
+  - [ ] ZIP
   - [ ] Packbits
+- Masking
+  - [ ] Transparency Mask
 
 ## License
 MIT. See LICENSE.txt.

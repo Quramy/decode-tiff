@@ -3,7 +3,7 @@ import fs from "fs";
 import path from "path";
 import rimraf from "rimraf";
 import glob from "glob";
-import { decode } from "../";
+import { decode } from "../src";
 import { PNG } from "pngjs";
 
 const inputs = glob.sync("input/*.tiff", { cwd: path.resolve(__dirname, "images/no-compression") });

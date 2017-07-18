@@ -233,21 +233,21 @@ function loadPages(buf) {
 }
 
 function normalizeStripData(ifdEntries, stripData) {
-  const { colorMap, bitsPerSample, compression } = ifdEntries;
+  const { colorMap, bitsPerSample, compression, photometricInterpretation } = ifdEntries;
   let x;
-  if (colorMap) {
-    throw new Error("Color map is not implemented.");
-  }
   if (compression && compression[0] !== 1) {
     throw new Error("Compression is not implemented.");
   }
   if (!bitsPerSample) {
-    throw new Error("Bilevel image is not implemented.");
+    throw new Error("Bilevel image decode is not implemented.");
   }
-  if (bitsPerSample.length === 4) {
+  if (colorMap) {
+    throw new Error("Palette-color image decode is not implemented.");
+  }
+  if (photometricInterpretation[0] = 2 && bitsPerSample.length === 4) {
     // 32bit RBGA image
     return stripData;
-  } else if (bitsPerSample.length === 3) {
+  } else if (photometricInterpretation[0] = 2 && bitsPerSample.length === 3) {
     // 24bit RBG image
     x = new Uint8Array(stripData.length / 3 * 4);
     for (let i = 0; i < stripData.length / 3; i++) {
@@ -257,8 +257,17 @@ function normalizeStripData(ifdEntries, stripData) {
       x[i * 4 + 3] = 0xFf;
     }
     return x;
-  }
-  if (bitsPerSample.length === 1) {
+  } else if (photometricInterpretation[0] < 2 && bitsPerSample.length === 1 && bitsPerSample[0] === 4) {
+    // 4bit grayscale image
+    x = new Uint8Array(stripData.length * 4);
+    for (let i = 0; i < stripData.length; i++) {
+      x[i * 4] = stripData[i] << 4;
+      x[i * 4 + 1] = stripData[i + 1] << 4;
+      x[i * 4 + 2] = stripData[i + 2] << 4;
+      x[i * 4 + 3] = 0xFF;
+    }
+    return x;
+  } else if (photometricInterpretation[0] < 2 && bitsPerSample.length === 1 && bitsPerSample[0] === 8) {
     // 8bit grayscale image
     x = new Uint8Array(stripData.length * 4);
     for (let i = 0; i < stripData.length; i++) {
@@ -272,7 +281,7 @@ function normalizeStripData(ifdEntries, stripData) {
 }
 
 function decode(buf, opt = { singlePage: true }) {
-  rawPages = loadPages(new Uint8Array(buf));
+  const rawPages = loadPages(new Uint8Array(buf));
   const pages = rawPages.map(rawPage => {
     const width = rawPage.ifdEntries.imageWidth[0];
     const height = rawPage.ifdEntries.imageLength[0];
