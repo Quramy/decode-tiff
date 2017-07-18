@@ -1,36 +1,59 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Example decode-tiff</title>
-    <style>
-    * {
-      margin: 0;
-      padding: 0;
-    }
-    #drop {
-      margin: 30px;
-      padding: 15px;
-      border-radius: 5px;
-      border: 4px dotted #eee;
-      min-height: 200px;
-    }
-    #drop p {
-      font-family: sans-serif;
-      font-size: 3rem;
-      text-align: center;
-      margin-top: 60px;
-    }
-    #drop pre {
-      font-size: 12px;
-      font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
-    }
-    </style>
-  </head>
-  <body>
-    <div id="drop">
-      <p>Drop TIFF file here!</p>
-    </div>
-    <script src="bundle.js"></script>
-  </body>
+<head>
+<meta charset="UTF-8">
+<title>Example decode-tiff</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+}
+#drop {
+  margin: 30px;
+  padding: 15px;
+  border-radius: 5px;
+  border: 4px dotted #eee;
+  min-height: 200px;
+}
+#drop p {
+  font-family: sans-serif;
+  font-size: 3rem;
+  text-align: center;
+  margin-top: 60px;
+}
+#drop pre {
+  font-size: 12px;
+  font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+</style>
+</head>
+<body>
+
+  <div id="drop">
+    <p>Drop TIFF file here!</p>
+  </div>
+
+<script src="decode-tiff.min.js"></script>
+<script>
+const { decode } = window.decodeTiff;
+const elm = document.getElementById("drop");
+elm.addEventListener("dragenter", e => e.preventDefault());
+elm.addEventListener("dragover", e => e.preventDefault());
+elm.addEventListener("drop", e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  const reader = new FileReader();
+  reader.addEventListener("load", e => {
+    const arrayBuffer = e.target.result;
+    const { width, height, ifdEntries } = decode(arrayBuffer);
+    const metadata = JSON.stringify({ width, height, ifdEntries }, null, 2);
+    elm.innerHTML = `
+      <pre>${metadata}</pre>
+    `;
+  });
+  reader.readAsArrayBuffer(file);
+});
+</script>
+</body>
+
 </html>
