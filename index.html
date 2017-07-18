@@ -47,13 +47,10 @@ elm.addEventListener("drop", e => {
     const arrayBuffer = e.target.result;
     const { width, height, ifdEntries } = decode(arrayBuffer);
     const metadata = JSON.stringify({ width, height, ifdEntries }, null, 2);
-    elm.innerHTML = `
-      <pre>${metadata}</pre>
-    `;
+    elm.innerHTML = `<pre>${metadata}</pre>`;
   });
   reader.readAsArrayBuffer(file);
 });
 </script>
 </body>
-
 </html>
