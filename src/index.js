@@ -24,6 +24,7 @@ const TAG_NAME_MAP = {
   0x0116: "rowsPerStrip",
   0x0117: "stripByteCounts",
   0x0128: "resolutionUnit",
+  0x0140: "colorMap",
 };
 
 function loadPages(buf) {
@@ -174,10 +175,10 @@ function loadPages(buf) {
   }
   
   function readStrips(ifdEntries) {
-    const ret = new Uint8Array(ifdEntries.imageWidth[0] * ifdEntries.imageLength[0] * ifdEntries.bitsPerSample.length);
+    const ret = new Uint8Array(ifdEntries.stripByteCounts.reduce((s, b) => s + b, 0));
     let copiedBl = 0;
     for (let s = 0; s < ifdEntries.stripOffsets.length; s++) {
-      let x = buf.subarray(ifdEntries.stripOffsets[s], ifdEntries.stripByteCounts[s]);
+      let x = buf.subarray(ifdEntries.stripOffsets[s], ifdEntries.stripOffsets[s] + ifdEntries.stripByteCounts[s]);
       ret.set(x, copiedBl);
       copiedBl += x.byteLength;
     }
@@ -232,12 +233,38 @@ function loadPages(buf) {
   return pages;
 }
 
-function normalizeStripData(ifdEntries, stripData) {
-  const { colorMap, bitsPerSample, compression, photometricInterpretation } = ifdEntries;
-  let x;
-  if (compression && compression[0] !== 1) {
-    throw new Error("Compression is not implemented.");
+function decompressData(ifdEntries, stripData) {
+  const { compression } = ifdEntries;
+  if (!compression || compression[0] === 1) {
+    // no-compress
+    return stripData;
+  } else if (compression[0] === 2) {
+    // CCITT Group 3
+    throw new Error("CCITT group3 decompressionion is not implemented.");
+  } else if (compression[0] === 5) {
+    // LZW
+    throw new Error("LZW decompressionion is not implemented.");
+  } else if (compression[0] === 6) {
+    // JPEG
+    throw new Error("JPEG decompressionion is not implemented.");
+  } else if (compression[0] === 7) {
+    // JPEG2
+    throw new Error("JPEG2 decompressionion is not implemented.");
+  } else if (compression[0] === 8) {
+    // Zip(Adobe Deflate)
+    throw new Error("Zip (Adove Deflate) decompressionion is not implemented.");
+  } else if (compression[0] === 32773) {
+    // Packbits
+    throw new Error("Packbits decompression is not implemented.");
+  } else {
+    throw new Error("Unknown compression type: " + compression[0]);
   }
+}
+
+function normalizeStripData(ifdEntries, stripData) {
+  const { colorMap, bitsPerSample, photometricInterpretation } = ifdEntries;
+  let x;
+  stripData = decompressData(ifdEntries, stripData);
   if (!bitsPerSample) {
     throw new Error("Bilevel image decode is not implemented.");
   }
@@ -277,6 +304,8 @@ function normalizeStripData(ifdEntries, stripData) {
       x[i * 4 + 3] = 0xFF;
     }
     return x;
+  } else {
+    throw new Error("Can't detect image type. PhotometricInterpretation: " + photometricInterpretation[0] + ", BitsPerSample: " + bitsPerSample);
   }
 }
 
