@@ -1,4 +1,4 @@
-/**
+﻿/**
  *
  * Required Fields for Bilevel Images
  *
@@ -261,6 +261,40 @@ function decompressData(ifdEntries, stripData) {
   }
 }
 
+function rawStripData(ifdEntries, stripData){
+  const { colorMap, bitsPerSample, photometricInterpretation } = ifdEntries;
+  let x;
+  stripData = decompressData(ifdEntries, stripData);
+
+  switch(bitsPerSample[0]){
+    case 1:
+    case 2:
+    case 4:
+    case 8:
+      x = stripData;
+    break;
+    case 16:
+      x = new Uint16Array(stripData.length / 2);
+      for(var i = 0; i < stripData.length; i += 2){
+        x[i/2] = stripData[i + 1] << 8 | stripData[i];
+      }
+    break;
+    case 24:
+      x = new Uint32Array(stripData.length / 3);
+      for(var i = 0; i < stripData.length; i += 3){
+        x[i/3] = stripData[i + 2] << 16 | stripData[i + 1] << 8 | stripData[i];
+      }
+    break;
+    case 32:
+    x = new Uint32Array(stripData.length / 4);
+    for(var i = 0; i < stripData.length; i += 4){
+      x[i/4] = stripData[i + 3] << 16 | stripData[i + 2] << 16 | stripData[i + 1] << 8 | stripData[i];
+    }
+    break;
+  }
+  return x;
+}
+
 function normalizeStripData(ifdEntries, stripData) {
   const { colorMap, bitsPerSample, photometricInterpretation } = ifdEntries;
   let x;
@@ -309,13 +343,18 @@ function normalizeStripData(ifdEntries, stripData) {
   }
 }
 
-function decode(buf, opt = { singlePage: true }) {
+function decode(buf, opt = { singlePage: true, normalizeStripData: true}) {
   const rawPages = loadPages(new Uint8Array(buf));
-  const pages = rawPages.map(rawPage => {
+  const pages = rawPages.map((rawPage, index) => {
     const width = rawPage.ifdEntries.imageWidth[0];
     const height = rawPage.ifdEntries.imageLength[0];
-    const data = normalizeStripData(rawPage.ifdEntries, rawPage.stripData);
-    return { width, height, data, ifdEntries: rawPage.ifdEntries };
+    if(opt.normalizeStripData === true){
+      const data = normalizeStripData(rawPage.ifdEntries, rawPage.stripData);
+      return { width, height, data, ifdEntries: rawPage.ifdEntries };
+    }else{
+      const data = rawStripData(rawPage.ifdEntries, rawPage.stripData);
+      return { width, height, data, ifdEntries: rawPage.ifdEntries };
+    }    
   });
   if (opt.singlePage) {
     if (!pages || !pages.length) {
