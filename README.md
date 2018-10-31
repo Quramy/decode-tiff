@@ -8,7 +8,7 @@
 ### With Node.js
 
 ```sh
-npm i tiff-decode
+npm i decode-tiff
 ```
 
 The following example reads .tiff and converts to .png file using [pngjs](https://www.npmjs.com/package/pngjs).
